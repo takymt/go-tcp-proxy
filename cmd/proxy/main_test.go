@@ -3,25 +3,24 @@ package main
 import "testing"
 
 func TestParseArgs(t *testing.T) {
-	expected := "127.0.0.1:9000"
-
-	actual, err := parseArgs([]string{"--listen", expected})
-
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	tests := []struct {
+		name string
+		args []string
+		want string
+	}{
+		{"explicit", []string{"--listen", "127.0.0.1:9000"}, "127.0.0.1:9000"},
+		{"default", []string{}, defaultListenAddr},
 	}
-	if actual != expected {
-		t.Errorf("actual=%v, expected=%v", actual, expected)
-	}
-}
 
-func TestParseArgsDefault(t *testing.T) {
-	actual, err := parseArgs([]string{})
-
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if actual != defaultListenAddr {
-		t.Errorf("actual=%v, defaultListenAddr=%v", actual, defaultListenAddr)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseArgs(tt.args)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got != tt.want {
+				t.Errorf("got=%v, want=%v", got, tt.want)
+			}
+		})
 	}
 }
