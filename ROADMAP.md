@@ -1,9 +1,9 @@
 # ROADMAP.md
 
 ## 0. リポジトリ基盤
-- [ ] Go module 初期化
+- [x] Go module 初期化
 - [ ] `cmd/proxy` エントリポイント
-- [ ] `mise.toml` 定義
+- [x] `mise.toml` 定義
 
 ## 1. 最小TCP Reverse Proxy（テーマ領域）
 - [ ] Listenして接続受理
