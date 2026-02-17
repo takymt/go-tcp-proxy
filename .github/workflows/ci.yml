@@ -39,9 +39,9 @@ jobs:
         run: go test ./...
 
       - name: Setup golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.1.6
+          version: v2.9.0
 
       - name: Lint
         run: golangci-lint run ./...
