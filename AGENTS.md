@@ -20,7 +20,7 @@ The agent acts as a **task reviewer**.
 
 ## Commit Flow
 - If a review result is **OK**, the agent should commit the related changes.
-- Before commit, run `mise run all` and confirm it passes.
+- For **non-theme** changes, the agent may use `git commit --no-verify` if pre-commit checks depend on theme code that does not exist yet.
 - Commit only changes relevant to the reviewed task.
 - Use a concise commit message that reflects the completed task.
 - Do not rewrite unrelated history.
@@ -28,6 +28,7 @@ The agent acts as a **task reviewer**.
 ## Execution Scope
 - **Non-theme area should be executed autonomously by the agent.**
 - For non-theme tasks (CI/lint/docs/scaffolding/tooling), the agent should proceed with its own judgment without waiting for extra confirmation.
+- The agent must not create or modify theme-area code without explicit user request.
 
 ## Ownership Split
 - **Theme area (implemented from scratch by the user)**
