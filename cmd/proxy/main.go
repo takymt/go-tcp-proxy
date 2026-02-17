@@ -2,13 +2,19 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net"
 )
 
-const listenAddr = "127.0.0.1:9000"
+const defaultListenAddr = "127.0.0.1:9000"
+
+var listenAddr string
 
 func main() {
+	flag.StringVar(&listenAddr, "listen", defaultListenAddr, "tcp listen address")
+	flag.Parse()
+
 	ln, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		log.Fatal(err)
