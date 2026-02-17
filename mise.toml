@@ -4,7 +4,7 @@ golangci-lint = "2.9.0"
 lefthook = "2.1.1"
 
 [tasks.build]
-run = "go buil -o proxy cmd/proxy"
+run = "go build -o proxy ./cmd/proxy"
 
 [tasks.test]
 run = "go test ./..."

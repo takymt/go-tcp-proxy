@@ -8,7 +8,28 @@ Build a learning-focused TCP Reverse Proxy in Go, incrementally.
 - Focus on low-to-mid level concerns (connection management, timeouts, backpressure, etc.)
 - Keep design extensible for observability (logs/metrics/tracing)
 
-## Ownership Split (Most Important)
+## Primary Working Mode (Most Important)
+The agent acts as a **task reviewer**.
+- The user reports task completion.
+- The agent reviews the result and explains:
+  - background
+  - rationale
+  - why it is good / risky
+  - what to improve next
+- Keep feedback concise, technical, and learning-oriented.
+
+## Commit Flow
+- If a review result is **OK**, the agent should commit the related changes.
+- Before commit, run `mise run all` and confirm it passes.
+- Commit only changes relevant to the reviewed task.
+- Use a concise commit message that reflects the completed task.
+- Do not rewrite unrelated history.
+
+## Execution Scope
+- **Non-theme area should be executed autonomously by the agent.**
+- For non-theme tasks (CI/lint/docs/scaffolding/tooling), the agent should proceed with its own judgment without waiting for extra confirmation.
+
+## Ownership Split
 - **Theme area (implemented from scratch by the user)**
   - Core proxy data plane
     - Accept / Dial
@@ -19,10 +40,17 @@ Build a learning-focused TCP Reverse Proxy in Go, incrementally.
   - As a rule, the user writes core logic from zero.
 
 - **Non-theme area (primarily implemented by the agent)**
-  - Project plumbing: CLI wiring, config loader, sample config, Makefile, Docker, CI skeleton
+  - Project plumbing: CLI wiring, config loader, sample config, Docker, CI skeleton
   - Observability scaffolding: logging foundation, metrics endpoint skeleton
   - Test infrastructure: test helpers, fixtures, benchmark harness, fault-injection scripts
   - Documentation: README, operation notes, validation steps
+
+## Review Policy
+1. Explain context first, then verdict.
+2. Distinguish correctness, operability, and maintainability.
+3. Prefer root-cause feedback over surface comments.
+4. When pointing out issues, include concrete next action.
+5. Avoid over-implementation of theme-area code by the agent.
 
 ## Implementation Policy
 1. **Do not overstep into the theme area**
