@@ -5,15 +5,28 @@ import (
 	"flag"
 	"log"
 	"net"
+	"os"
 )
 
 const defaultListenAddr = "127.0.0.1:9000"
 
-var listenAddr string
+func parseArgs(args []string) (string, error) {
+	fs := flag.NewFlagSet("proxy", flag.ContinueOnError)
+	var listenAddr string
+	fs.StringVar(&listenAddr, "listen", defaultListenAddr, "tcp listen address")
+
+	if err := fs.Parse(args); err != nil {
+		return "", err
+	}
+
+	return listenAddr, nil
+}
 
 func main() {
-	flag.StringVar(&listenAddr, "listen", defaultListenAddr, "tcp listen address")
-	flag.Parse()
+	listenAddr, err := parseArgs(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ln, err := net.Listen("tcp", listenAddr)
 	if err != nil {
