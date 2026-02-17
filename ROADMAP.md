@@ -9,7 +9,8 @@
 - [-] Listenして接続受理
   - [x] 最小限実装
   - [x] `--listen` 引数を追加
-  - [ ] `conn.Read()` できるように修正
+  - [x] `conn.Read()` できるように修正
+  - [ ] `flag.NewFlagSet` で `parseArgs` できるようにする
   - [ ] goroutineで起動するように修正
 - [ ] バックエンド選択（最初はラウンドロビン）
 - [ ] upstreamへDial

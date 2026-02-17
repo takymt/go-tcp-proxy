@@ -33,7 +33,14 @@ func main() {
 			continue
 		}
 
-		log.Println(conn.LocalAddr().String())
+		buf := make([]byte, 1024)
+		n, err := conn.Read(buf)
+		if err != nil {
+			log.Printf("conn error %v", err)
+			continue
+		}
+
+		log.Println(string(buf[:n]))
 
 		if err := conn.Close(); err != nil {
 			log.Printf("conn close error %v", err)
