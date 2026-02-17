@@ -2,11 +2,11 @@
 
 ## 0. リポジトリ基盤
 - [x] Go module 初期化
-- [ ] `cmd/proxy` エントリポイント
+- [x] `cmd/proxy` エントリポイント
 - [x] `mise.toml` 定義
 
 ## 1. 最小TCP Reverse Proxy（テーマ領域）
-- [ ] Listenして接続受理
+- [x] Listenして接続受理
 - [ ] バックエンド選択（最初はラウンドロビン）
 - [ ] upstreamへDial
 - [ ] 双方向コピー（client->backend, backend->client）
