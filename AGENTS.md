@@ -21,6 +21,7 @@ The agent acts as a **task reviewer**.
 ## Commit Flow
 - If a review result is **OK**, the agent should commit the related changes.
 - For **non-theme** changes, the agent may use `git commit --no-verify` if pre-commit checks depend on theme code that does not exist yet.
+- If review is OK, update `ROADMAP.md` to mark the task as done.
 - Commit only changes relevant to the reviewed task.
 - Use a concise commit message that reflects the completed task.
 - Do not rewrite unrelated history.
