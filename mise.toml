@@ -1,0 +1,25 @@
+[tools]
+go = "1.26.0"
+golangci-lint = "2.9.0"
+lefthook = "2.1.1"
+
+[tasks.build]
+run = "go buil -o proxy cmd/proxy"
+
+[tasks.test]
+run = "go test ./..."
+
+[tasks.fmt]
+run = "gofmt -w ."
+
+[tasks.lint]
+run = "golangci-lint run ./..."
+
+[tasks.clean]
+run = "rm -rf proxy dist"
+
+[tasks.all]
+run = ["mise run fmt", "mise run lint", "mise run test", "mise run build"]
+
+[tasks.hooks]
+run = "lefthook install"
