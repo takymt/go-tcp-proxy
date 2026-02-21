@@ -6,7 +6,7 @@
 - [x] `mise.toml` 定義
 
 ## 1. 最小TCP Reverse Proxy（テーマ領域）
-- [ ] Listenして接続受理
+- [x] Listenして接続受理
   - [x] 最小限実装
   - [x] `--listen` 引数を追加
   - [x] `conn.Read()` できるように修正
