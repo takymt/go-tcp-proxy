@@ -8,6 +8,9 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 )
 
@@ -47,8 +50,9 @@ func readOnce(conn net.Conn) ([]byte, error) {
 	return buf[:n], err
 }
 
-func handleRead(conn net.Conn, timeout time.Duration) {
+func handleRead(wg *sync.WaitGroup, conn net.Conn, timeout time.Duration) {
 	defer closeConn(conn)
+	defer wg.Done()
 
 	err := conn.SetReadDeadline(time.Now().Add(timeout))
 	if err != nil {
@@ -70,6 +74,9 @@ func handleRead(conn net.Conn, timeout time.Duration) {
 }
 
 func main() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+
 	listenAddr, err := parseArgs(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
@@ -79,15 +86,31 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer closeListener(ln)
+
+	conns := make(chan net.Conn, 1)
+	go func() {
+		for {
+			conn, err := ln.Accept()
+			if err != nil {
+				log.Printf("accept error %v", err)
+				return
+			}
+
+			conns <- conn
+		}
+	}()
+
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
 
 	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Printf("accept error %v", err)
-			continue
+		select {
+		case <-sigs:
+			closeListener(ln)
+			return
+		case conn := <-conns:
+			wg.Add(1)
+			go handleRead(wg, conn, time.Second*3)
 		}
-
-		go handleRead(conn, time.Second*3)
 	}
 }
