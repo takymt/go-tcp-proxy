@@ -12,7 +12,7 @@
   - [x] `conn.Read()` できるように修正
   - [x] `parseArgs()` のテストと実装を作成
   - [x] `conn.Close()` を `defer` で管理
-  - [ ] 接続処理を goroutine で実行
+  - [x] 接続処理を goroutine で実行
   - [ ] 接続 timeout を設定
   - [ ] `WaitGroup` で in-flight を管理
 - [ ] バックエンド選択（最初はラウンドロビン）

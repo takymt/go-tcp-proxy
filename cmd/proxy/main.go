@@ -76,6 +76,6 @@ func main() {
 			continue
 		}
 
-		handleRead(conn)
+		go handleRead(conn)
 	}
 }
