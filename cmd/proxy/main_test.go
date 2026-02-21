@@ -1,15 +1,27 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"strings"
+	"testing"
+)
 
 func TestParseArgs(t *testing.T) {
 	tests := []struct {
 		name string
 		args []string
-		want string
+		want Args
 	}{
-		{"explicit", []string{"--listen", "127.0.0.1:9000"}, "127.0.0.1:9000"},
-		{"default", []string{}, defaultListenAddr},
+		{
+			name: "explicit",
+			args: []string{"--listen", "127.0.0.1:9000", "--backends", "127.0.0.1:9001,127.0.0.1:9002"},
+			want: Args{"127.0.0.1:9000", []string{"127.0.0.1:9001", "127.0.0.1:9002"}},
+		},
+		{
+			name: "default",
+			args: nil,
+			want: Args{defaultListenAddr, strings.Split(defaultBackends, ",")},
+		},
 	}
 
 	for _, tt := range tests {
@@ -18,9 +30,24 @@ func TestParseArgs(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-			if got != tt.want {
+
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("got=%v, want=%v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestRoundRobin(t *testing.T) {
+	r := RoundRobin{
+		backends: []string{"127.0.0.1:9001", "127.0.0.1:9002", "127.0.0.1:9003"},
+		current:  0,
+	}
+	want := "127.0.0.1:9002"
+
+	got := r.Next()
+
+	if got != want {
+		t.Errorf("got=%v, want=%v", got, want)
 	}
 }

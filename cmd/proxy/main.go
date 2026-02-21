@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -16,16 +17,28 @@ import (
 
 const defaultListenAddr = "127.0.0.1:9000"
 
-func parseArgs(args []string) (string, error) {
+var defaultBackends = "127.0.0.1:9001,127.0.0.1:9002,127.0.0.1:9003"
+
+type Args struct {
+	listenAddr string
+	backends   []string
+}
+
+func parseArgs(args []string) (Args, error) {
 	fs := flag.NewFlagSet("proxy", flag.ContinueOnError)
+
 	var listenAddr string
+	var rawBackends string
 	fs.StringVar(&listenAddr, "listen", defaultListenAddr, "tcp listen address")
+	fs.StringVar(&rawBackends, "backends", defaultBackends, "backend server addresses separated by comma")
 
 	if err := fs.Parse(args); err != nil {
-		return "", err
+		return Args{}, err
 	}
 
-	return listenAddr, nil
+	backends := strings.Split(rawBackends, ",")
+
+	return Args{listenAddr, backends}, nil
 }
 
 func closeConn(closer io.Closer) {
@@ -48,6 +61,16 @@ func readOnce(conn net.Conn) ([]byte, error) {
 	}
 
 	return buf[:n], err
+}
+
+type RoundRobin struct {
+	backends []string
+	current  int
+}
+
+func (r *RoundRobin) Next() string {
+	r.current = (r.current + 1) % len(r.backends)
+	return r.backends[r.current]
 }
 
 func handleRead(wg *sync.WaitGroup, conn net.Conn, timeout time.Duration) {
@@ -77,12 +100,12 @@ func main() {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
 
-	listenAddr, err := parseArgs(os.Args[1:])
+	args, err := parseArgs(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ln, err := net.Listen("tcp", listenAddr)
+	ln, err := net.Listen("tcp", args.listenAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
