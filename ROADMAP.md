@@ -15,7 +15,7 @@
   - [x] 接続処理を goroutine で実行
   - [x] 接続 timeout を設定
   - [x] `WaitGroup` で in-flight を管理
-- [ ] バックエンド選択（最初はラウンドロビン）
+- [x] バックエンド選択（最初はラウンドロビン）
 - [ ] upstreamへDial
 - [ ] 双方向コピー（client->backend, backend->client）
 - [ ] 切断時の後始末（close順序/リーク確認）
