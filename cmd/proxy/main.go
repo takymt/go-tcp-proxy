@@ -2,6 +2,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"io"
 	"log"
@@ -56,10 +57,11 @@ func handleRead(conn net.Conn, timeout time.Duration) {
 	}
 
 	buf, err := readOnce(conn)
-	if os.IsTimeout(err) {
+	switch {
+	case errors.Is(err, os.ErrDeadlineExceeded):
 		log.Printf("conn timeout: %v", err)
 		return
-	} else if err != nil {
+	case err != nil:
 		log.Printf("conn read error: %v", err)
 		return
 	}
