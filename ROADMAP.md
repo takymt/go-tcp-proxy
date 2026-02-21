@@ -16,7 +16,7 @@
   - [x] 接続 timeout を設定
   - [x] `WaitGroup` で in-flight を管理
 - [x] バックエンド選択（最初はラウンドロビン）
-- [ ] upstreamへDial
+- [x] upstreamへDial
 - [ ] 双方向コピー（client->backend, backend->client）
 - [ ] 切断時の後始末（close順序/リーク確認）
 

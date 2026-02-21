@@ -12,7 +12,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 )
 
 const defaultListenAddr = "127.0.0.1:9000"
@@ -53,16 +52,6 @@ func closeListener(ln net.Listener) {
 	}
 }
 
-func readOnce(conn net.Conn) ([]byte, error) {
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		return nil, err
-	}
-
-	return buf[:n], err
-}
-
 type RoundRobin struct {
 	backends []string
 	current  int
@@ -73,27 +62,20 @@ func (r *RoundRobin) Next() string {
 	return r.backends[r.current]
 }
 
-func handleRead(wg *sync.WaitGroup, conn net.Conn, timeout time.Duration) {
+func dialOnce(r *RoundRobin, mu *sync.Mutex, wg *sync.WaitGroup, conn net.Conn) {
 	defer closeConn(conn)
 	defer wg.Done()
 
-	err := conn.SetReadDeadline(time.Now().Add(timeout))
+	mu.Lock()
+	backend := r.Next()
+	mu.Unlock()
+
+	connBackend, err := net.Dial("tcp", backend)
 	if err != nil {
-		log.Printf("conn set read deadline error: %v", err)
+		log.Printf("cannot connect to backend: %v", err)
 		return
 	}
-
-	buf, err := readOnce(conn)
-	switch {
-	case errors.Is(err, os.ErrDeadlineExceeded):
-		log.Printf("conn timeout: %v", err)
-		return
-	case err != nil:
-		log.Printf("conn read error: %v", err)
-		return
-	}
-
-	log.Printf("read bytes=%d", len(buf))
+	defer closeConn(connBackend)
 }
 
 func main() {
@@ -110,8 +92,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	mu := &sync.Mutex{}
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
+
+	r := &RoundRobin{args.backends, 0}
 
 	for {
 		select {
@@ -129,7 +114,7 @@ func main() {
 				return
 			default:
 				wg.Add(1)
-				go handleRead(wg, conn, time.Second*3)
+				go dialOnce(r, mu, wg, conn)
 			}
 		}
 	}
