@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 )
 
 const defaultListenAddr = "127.0.0.1:9000"
@@ -45,11 +46,20 @@ func readOnce(conn net.Conn) ([]byte, error) {
 	return buf[:n], err
 }
 
-func handleRead(conn net.Conn) {
+func handleRead(conn net.Conn, timeout time.Duration) {
 	defer closeConn(conn)
 
-	buf, err := readOnce(conn)
+	err := conn.SetReadDeadline(time.Now().Add(timeout))
 	if err != nil {
+		log.Printf("conn set read deadline error: %v", err)
+		return
+	}
+
+	buf, err := readOnce(conn)
+	if os.IsTimeout(err) {
+		log.Printf("conn timeout: %v", err)
+		return
+	} else if err != nil {
 		log.Printf("conn read error: %v", err)
 		return
 	}
@@ -76,6 +86,6 @@ func main() {
 			continue
 		}
 
-		go handleRead(conn)
+		go handleRead(conn, time.Second*3)
 	}
 }
