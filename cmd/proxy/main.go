@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -22,6 +23,40 @@ func parseArgs(args []string) (string, error) {
 	return listenAddr, nil
 }
 
+func closeConn(closer io.Closer) {
+	if err := closer.Close(); err != nil {
+		log.Printf("close error: %v", err)
+	}
+}
+
+func closeListener(ln net.Listener) {
+	if err := ln.Close(); err != nil {
+		log.Printf("listener close error: %v", err)
+	}
+}
+
+func readOnce(conn net.Conn) ([]byte, error) {
+	buf := make([]byte, 1024)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf[:n], err
+}
+
+func handleRead(conn net.Conn) {
+	defer closeConn(conn)
+
+	buf, err := readOnce(conn)
+	if err != nil {
+		log.Printf("conn read error: %v", err)
+		return
+	}
+
+	log.Printf("read bytes=%d", len(buf))
+}
+
 func main() {
 	listenAddr, err := parseArgs(os.Args[1:])
 	if err != nil {
@@ -32,12 +67,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer func() {
-		if err := ln.Close(); err != nil {
-			log.Printf("listener close error: %v", err)
-		}
-	}()
+	defer closeListener(ln)
 
 	for {
 		conn, err := ln.Accept()
@@ -46,17 +76,6 @@ func main() {
 			continue
 		}
 
-		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
-		if err != nil {
-			log.Printf("conn error %v", err)
-			continue
-		}
-
-		log.Println(string(buf[:n]))
-
-		if err := conn.Close(); err != nil {
-			log.Printf("conn close error %v", err)
-		}
+		handleRead(conn)
 	}
 }
