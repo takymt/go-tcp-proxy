@@ -21,6 +21,7 @@ The agent acts as a **task reviewer**.
 ## Response Guardrails
 - For conceptual questions, the agent must answer with concepts only (definition, reasoning, tradeoff), without implementation code.
 - The agent may provide code only when explicitly requested by the user (e.g., "show code", "implement", "example code").
+- When the user asks for a hint, provide exactly one short hint sentence at investigation level (e.g., "check API X"), not a direct implementation step or full answer.
 
 ## Commit Flow
 - If a review result is **OK**, the agent should commit the related changes.
