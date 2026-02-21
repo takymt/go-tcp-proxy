@@ -11,7 +11,10 @@
   - [x] `--listen` 引数を追加
   - [x] `conn.Read()` できるように修正
   - [x] `parseArgs()` のテストと実装を作成
-  - [ ] goroutineで起動するように修正
+  - [ ] `conn.Close()` を `defer` で管理
+  - [ ] 接続処理を goroutine で実行
+  - [ ] 接続 timeout を設定
+  - [ ] `WaitGroup` で in-flight を管理
 - [ ] バックエンド選択（最初はラウンドロビン）
 - [ ] upstreamへDial
 - [ ] 双方向コピー（client->backend, backend->client）
