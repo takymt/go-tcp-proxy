@@ -18,6 +18,10 @@ The agent acts as a **task reviewer**.
   - what to improve next
 - Keep feedback concise, technical, and learning-oriented.
 
+## Response Guardrails
+- For conceptual questions, the agent must answer with concepts only (definition, reasoning, tradeoff), without implementation code.
+- The agent may provide code only when explicitly requested by the user (e.g., "show code", "implement", "example code").
+
 ## Commit Flow
 - If a review result is **OK**, the agent should commit the related changes.
 - For **non-theme** changes, the agent may use `git commit --no-verify` if pre-commit checks depend on theme code that does not exist yet.
