@@ -87,19 +87,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	conns := make(chan net.Conn, 1)
-	go func() {
-		for {
-			conn, err := ln.Accept()
-			if err != nil {
-				log.Printf("accept error %v", err)
-				return
-			}
-
-			conns <- conn
-		}
-	}()
-
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 
@@ -108,9 +95,19 @@ func main() {
 		case <-sigs:
 			closeListener(ln)
 			return
-		case conn := <-conns:
-			wg.Add(1)
-			go handleRead(wg, conn, time.Second*3)
+		default:
+			conn, err := ln.Accept()
+			switch {
+			case errors.Is(err, net.ErrClosed):
+				log.Printf("graceful shutdown %v", err)
+				return
+			case err != nil:
+				log.Printf("unexpected error %v", err)
+				return
+			default:
+				wg.Add(1)
+				go handleRead(wg, conn, time.Second*3)
+			}
 		}
 	}
 }

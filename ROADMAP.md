@@ -14,7 +14,7 @@
   - [x] `conn.Close()` を `defer` で管理
   - [x] 接続処理を goroutine で実行
   - [x] 接続 timeout を設定
-  - [ ] `WaitGroup` で in-flight を管理
+  - [x] `WaitGroup` で in-flight を管理
 - [ ] バックエンド選択（最初はラウンドロビン）
 - [ ] upstreamへDial
 - [ ] 双方向コピー（client->backend, backend->client）
